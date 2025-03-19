@@ -3,11 +3,9 @@ resource "aws_vpc" "VPC_AT" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name = "VPC-AT",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "VPC-AT"
+  })
 }
 
 # Create a Public Subnet
@@ -17,11 +15,10 @@ resource "aws_subnet" "public_subnet_AT" {
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "public-subnet-AT",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "public-subnet-AT"
+
+  })
 }
 
 # Create a Private Subnet
@@ -31,32 +28,27 @@ resource "aws_subnet" "private_subnet_AT" {
   availability_zone       = "us-east-1a"  # Change this to your preferred AZ
   map_public_ip_on_launch = false
 
-  tags = {
-    Name = "Private Subnet",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "Private Subnet"
+  
+  })
 }
 
 # Create an Internet Gateway
 resource "aws_internet_gateway" "igw_AT" {
   vpc_id = aws_vpc.VPC_AT.id
 
-  tags = {
-    Name = "igw-AT"
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "igw-AT"
+  })
 }
 
 # Create a Route Table for the public subnet (to route traffic to the internet)
 resource "aws_route_table" "route_table_public_AT" {
   vpc_id = aws_vpc.VPC_AT.id
-  tags = {
-    Name = "public-route-table-AT",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "public-route-table-AT"
+  })
 }
 
 # Create a Route in the Route Table for the public subnet (allowing internet access)
@@ -83,21 +75,17 @@ resource "aws_nat_gateway" "nat_gateway_AT" {
 
   depends_on = [aws_internet_gateway.igw_AT] 
 
-  tags = {
-    Name = "nat-gateway-AT",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    "Name" = "nat-gateway-AT"
+  })
 }
 
 # Create a Route Table for the private subnet (to route traffic through the NAT Gateway)
 resource "aws_route_table" "route_table_private_AT" {
   vpc_id = aws_vpc.VPC_AT.id
-  tags = {
-    Name = "private-route-table-AT",
-    owner = "toharbarazi",
-    Owner = "adibeker"
-  }
+  tags = merge(var.common_tags, {
+    Name = "private-route-table-AT"
+  })
 }
 
 # Create a Route in the Route Table for the private subnet (routing through the NAT Gateway)
