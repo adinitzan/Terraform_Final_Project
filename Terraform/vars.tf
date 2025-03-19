@@ -20,3 +20,11 @@ variable "subnet_ids" {
   description = "List of subnet IDs for EKS"
   type        = list(string)
 }
+
+variable "common_tags" {
+  type = map(string)
+  default = {
+    "owner" = "toharbarazi"
+    "Owner" = "adibeker"
+  }
+}g
