@@ -5,6 +5,9 @@ resource "aws_eks_cluster" "eks_AT" {
   vpc_config {
     subnet_ids = var.subnet_ids
   }
+  tags = merge(var.common_tags, {
+    "Name" = "EKS-Cluster-AT"
+  })
 }
 
 output "eks_cluster_name" {
