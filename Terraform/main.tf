@@ -4,20 +4,20 @@ provider "aws" {
 }
 
 module "vpc" {
-  source             = "./vpc.tf"
+  source             = "./vpc"
   vpc_cidr          = var.vpc_cidr
   public_subnet_cidr = var.public_subnet_cidr
   private_subnet_cidr = var.private_subnet_cidr
 }
 
 module "eks" {
-  source  = "./eks.tf"
+  source  = "./eks"
   vpc_id  = module.vpc.vpc_id
   subnet_ids = [module.vpc.public_subnet_id, module.vpc.private_subnet_id]
 }
 
 module "security" {
-  source  = "./security.tf"
+  source  = "./security"
   vpc_id  = module.vpc.vpc_id
 }
 
