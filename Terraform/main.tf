@@ -11,13 +11,13 @@ module "vpc" {
 }
 
 module "eks" {
-  source  = "./"
+  source  = "./eks.tf"
   vpc_id  = module.vpc.vpc_id
   subnet_ids = [module.vpc.public_subnet_id, module.vpc.private_subnet_id]
 }
 
 module "security" {
-  source  = "./"
+  source  = "./security.tf"
   vpc_id  = module.vpc.vpc_id
 }
 
@@ -27,4 +27,10 @@ output "eks_cluster_name_in_main" {
 
 output "vpc_id" {
   value = module.vpc.vpc_id
+}
+
+terraform {
+  backend "local" {
+    path = "../terraform.tfstate"
+  }
 }
