@@ -21,7 +21,7 @@ module "security" {
   vpc_id  = module.vpc.vpc_id
 }
 
-output "eks_cluster_name" {
+output "eks_cluster_name_in_main" {
   value = module.eks.eks_cluster_name
 }
 
