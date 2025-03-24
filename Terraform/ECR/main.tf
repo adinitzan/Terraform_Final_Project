@@ -1,10 +1,10 @@
 resource "aws_ecr_repository" "AT_ecr" {
-  name = "AT-status-page-repository"
+  name = "at-status-page-repository"
 
   image_tag_mutability = "MUTABLE"
 
   tags = merge(var.common_tags, {
-    "Name" = "AT-status-page-ECR"
+    "Name" = "at-status-page-repository"
   })
 }
 
@@ -18,13 +18,15 @@ resource "aws_iam_role" "AT_eks_ecr_access" {
         Effect = "Allow",
         Action = "sts:AssumeRole",
         Principal = {
-          Service = "eks.amazonaws.com"
+          Service = [
+            "eks.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
         }
       }
     ]
   })
 }
-
 resource "aws_iam_policy" "AT_eks_ecr_policy" {
   name        = "AT-eks-ecr-policy"
   description = "Allow EKS nodes to pull images from ECR"

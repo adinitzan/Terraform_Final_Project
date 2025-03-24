@@ -19,7 +19,7 @@ module "ecr" {
 module "eks" {
   source  = "./eks"
   vpc_id  =var.vpc_id
-  subnet_ids = var.subnet_ids
+  subnet_ids = module.vpc.subnet_ids
   role_arn   = module.security.eks_role_arn
   common_tags = var.common_tags
   node_role_arn   = module.ecr.eks_node_role_arn
