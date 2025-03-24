@@ -1,5 +1,5 @@
 resource "aws_security_group" "eks_sg" {
-  vpc_id = aws_vpc.VPC_AT.id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port   = 443
