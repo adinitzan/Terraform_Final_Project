@@ -1,0 +1,106 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgress
+    hostname: db
+    environment:
+      - POSTGRES_DB=status-page
+      - POSTGRES_USER=status-page
+      - POSTGRES_PASSWORD=abcdefgh123456
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U status-page -d status-page"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    expose:
+      - "5432"
+    networks:
+      - status_page_network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    hostname: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+    expose:
+      - "6379"
+    networks:
+      - status_page_network
+
+  web:
+    build: .
+    container_name: web
+    volumes:
+      - ./statuspage/static:/opt/status-page/statuspage/static/
+    restart: no
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_NAME=status-page
+      - DATABASE_USER=status-page
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=""
+      - REDIS_TASKS_DB=0
+      - REDIS_CACHING_DB=1
+      - ALLOWED_HOSTS="*"
+      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+    command: >
+      bash -c "/opt/status-page/upgrade.sh && source /opt/status-page/venv/bin/activate && echo 'from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"admin\", \"admin@example.com\", \"admin123\")' | python3 /opt/status-page/statuspage/manage.py shell && gunicorn -c /opt/status-page/gunicorn.py statuspage.wsgi:application --chdir /opt/status-page/statuspage"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    tty: true
+    networks:
+      - status_page_network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: dockerfile.nginx
+    container_name: nginx
+    volumes:
+     - ./statuspage/static:/opt/status-page/statuspage/static/
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    networks:
+      - status_page_network
+
+ # status_page_gunicorn:
+ #   build:
+ #     context: .
+ #     dockerfile: dockerfile.super
+ #   container_name: status_page_gunicorn
+ #  volumes:
+ #    - ./contrib/*.service:/etc/systemd/system/
+ #    - ./status-page:/opt/status-page
+ #   environment:
+ #     - container=docker
+ #   depends_on:
+ #     - web
+ #     - redis
+ #   networks:
+ #    - status_page_network
+
+networks:
+  status_page_network:
+    driver: bridge
+
+

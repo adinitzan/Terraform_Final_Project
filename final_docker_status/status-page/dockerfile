@@ -1,0 +1,65 @@
+# Use a base Python image
+FROM python:3.11
+
+# Create a working directory inside the container
+WORKDIR /opt/status-page/
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libffi-dev \
+    libssl-dev \
+    supervisor \
+    && apt-get clean
+
+# Create system user and group
+RUN groupadd --system status-page && \
+    adduser --system --ingroup status-page status-page
+
+# Set ownership of the app directory
+RUN chown -R status-page:status-page /opt/status-page/
+
+#  Copy all necessary files (including Django files and the generate_secret_key script)
+#COPY . /opt/status-page/
+
+#COPY ./statuspage/generate_secret_key.py /opt/status-page/statuspage/generate_secret_key.py
+# Generate the Django SECRET_KEY using the Python script and save it to a file
+#RUN python3 /opt/status-page/statuspage/generate_secret_key.py > /opt/status-page/secret_key.txt
+
+# Upgrade pip and install dependencie
+RUN pip install --upgrade pip
+COPY ./requirements.txt /opt/status-page/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+ADD . /opt/status-page/
+
+COPY ./upgrade.sh /opt/status-page/upgrade.sh
+# Make scripts executable
+RUN chmod +x /opt/status-page/upgrade.sh
+
+COPY ./statuspage/manage.py /opt/status-page/statuspage/manage.py
+#COPY ./statuspage/statuspage/settings.py /opt/status-page/statuspage/settings.py
+#COPY ./supervisor.conf /opt/status-page/supervisor.conf
+COPY ./contrib/gunicorn.py /opt/status-page/gunicorn.py
+#COPY ./contrib/nginx.conf /opt/status-page/nginx.conf
+# Run the upgrade.sh script to set up the application environment
+RUN chmod +x /opt/status-page/upgrade.sh
+#RUN /opt/status-page/upgrade.sh
+#COPY ./supervisord.conf /etc/supervisor/supervisord.conf
+
+# Expose the necessary ports
+EXPOSE 8000 8001 443
+
+# Command to run Gunicorn
+#CMD ["/opt/status-page/entrypoint.sh"]
+#CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+
+#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

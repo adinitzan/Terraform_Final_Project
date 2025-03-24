@@ -1,0 +1,61 @@
+# Use official Python 3.11 image as base
+FROM python:3.11
+
+# Set working directory
+WORKDIR /opt/status-page/
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libffi-dev \
+    libssl-dev \
+    supervisor \
+    && apt-get clean
+
+# Copy application code
+ADD . /opt/status-page/
+
+# Create a virtual environment
+#RUN python3 -m venv /opt/status-page/venv
+
+# Install Python dependencies from requirements.txt
+#RUN /opt/status-page/venv/bin/pip install --upgrade pip && \
+#    /opt/status-page/venv/bin/pip install -r /opt/status-page/requirements.txt
+
+# Create supervisor configuration directory
+RUN mkdir -p /etc/supervisor/conf.d
+
+
+# Create system user and group
+RUN groupadd --system status-page && \
+    adduser --system --ingroup status-page status-page
+
+# Set ownership of the app directory
+RUN chown -R status-page:status-page /opt/status-page/ 
+
+RUN mkdir -p /var/log/status-page && chown -R status-page:status-page /var/log/status-page
+
+# Upgrade pip and install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt /opt/status-page/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Make scripts executable
+RUN chmod +x /opt/status-page/upgrade.sh
+
+# Expose ports
+EXPOSE 8001
+EXPOSE 8000
+
+# Copy supervisord config
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod +x /etc/supervisor/conf.d/supervisord.conf
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
