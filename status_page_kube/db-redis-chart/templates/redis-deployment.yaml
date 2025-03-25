@@ -17,7 +17,7 @@ spec:
       hostname: redis
       containers:
         - name: redis
-          image: "{{ .Values.redis.image }}"
+          image: "{{ .Values.redis.image }}"  # The image is pulled from values.yaml
           ports:
             - containerPort: 6379
           livenessProbe:
