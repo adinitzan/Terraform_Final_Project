@@ -17,7 +17,7 @@ resource "aws_security_group" "eks_sg" {
 }
 
 resource "aws_iam_role" "eks_role" {
-  name = "eks-cluster-role"
+  name = "eks-cluster-role-AT"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
