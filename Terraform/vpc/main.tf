@@ -25,7 +25,7 @@ resource "aws_subnet" "public_subnet_AT" {
 resource "aws_subnet" "private_subnet_AT" {
   vpc_id     = aws_vpc.VPC_AT.id
   cidr_block = var.private_subnet_cidr   
-  availability_zone       = "us-east-1a"  # Change this to your preferred AZ
+  availability_zone       = "us-east-1b"  # Change this to your preferred AZ
   map_public_ip_on_launch = false
 
   tags = merge(var.common_tags, {
@@ -100,3 +100,4 @@ resource "aws_route_table_association" "private_subnet_association_AT" {
   subnet_id      = aws_subnet.private_subnet_AT.id
   route_table_id = aws_route_table.route_table_private_AT.id
 }
+
