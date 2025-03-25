@@ -1,10 +1,11 @@
 redis:
-  image: redis:latest  # Ensure this is the correct image and tag for Redis
+  image: redis
+  tag: latest  # Ensure the tag is specified here
 
 postgres:
   image:
-    repository: postgres  # Correct image repository for Postgres
-    tag: latest           # Correct tag for Postgres
+    repository: postgres
+    tag: latest  # Ensure the tag is specified here
   environment:
     POSTGRES_DB: mydb  # Replace with the actual DB name
     POSTGRES_USER: myuser  # Replace with the actual Postgres user
