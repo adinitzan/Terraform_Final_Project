@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    server {
+        listen [::]:443 ssl ipv6only=off;
+        server_name status-page.example.com;
+
+        ssl_certificate /etc/nginx/certs/status-page.crt;
+        ssl_certificate_key /etc/nginx/certs/status-page.key;
+
+        client_max_body_size 25m;
+
+        location /static/ {
+            alias /opt/status-page/statuspage/static/;
+        }
+
+        location / {
+            proxy_pass http://{{ .Values.web.serviceName }}:8001;
+            proxy_set_header X-Forwarded-Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    server {
+        listen [::]:80 ipv6only=off;
+        server_name _;
+        return 301 https://$host$request_uri;
+    }
+

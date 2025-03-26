@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-page-web
+  labels:
+    app: status-page-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: status-page-web
+  template:
+    metadata:
+      labels:
+        app: status-page-web
+    spec:
+      containers:
+        - name: status-page-web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          env:
+            - name: DATABASE_NAME
+              value: "status-page"
+            - name: DATABASE_USER
+              value: "status-page"
+            - name: DATABASE_PASSWORD
+              value: "abcdefgh123456"
+            - name: DATABASE_HOST
+              value: "postgres"
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: SECRET_KEY
+              value: "8cs)mx_OtgGHaZSKsV4Aw%Rahpe@22Ukj9S=UcJ1c$!@7Gwq%c"
+          volumeMounts:
+            - name: static-files
+              mountPath: /opt/status-page/statuspage/static/
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+      imagePullSecrets:
+        - name: regcred
+
+      volumes:
+        - name: static-files
+          hostPath:
+            path: /home/user/finalProject/status-page/statuspage/static
+

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          volumeMounts:
+            - name: static-files
+              mountPath: /opt/status-page/statuspage/static
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf  # Ensure nginx.conf is placed here
+              subPath: nginx.conf
+            - name: nginx-certs
+              mountPath: /etc/nginx/certs  # Mount the SSL certs here
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: static-files-pvc
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-config
+        - name: nginx-certs
+          secret:
+            secretName: status-page-certs  # Use the Secret with your SSL cert and key
+      imagePullSecrets:
+        - name: regcred
+
