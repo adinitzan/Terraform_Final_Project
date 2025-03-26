@@ -31,16 +31,10 @@ module "security" {
 }
 
 module "rds" {
-  source            = "./modules/rds"
+  source            = "./rds"
   vpc_id            = module.vpc.vpc_id
-  vpc_cidr_block    = var.vpc_cidr_block
-  subnet_ids        = var.subnet_ids
+  subnet_ids        = module.vpc.subnet_ids
   eks_security_group_id = module.security.eks_security_group_id
-  db_username       = var.db_username
-  db_password       = var.db_password
-  db_name           = var.db_name
-  db_engine         = var.db_engine
-  db_engine_version = var.db_engine_version
   common_tags       = var.common_tags
 }
 

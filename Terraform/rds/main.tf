@@ -1,5 +1,14 @@
+resource "aws_db_subnet_group" "eks_rds_subnet_group" {
+  name       = "at-eks-rds-subnet-group"
+  subnet_ids = var.subnet_ids
+
+  tags = merge(var.common_tags, {
+    "Name" = "at-eks-rds-subnet-group"
+  })
+}
+
 resource "aws_db_instance" "eks_rds" {
-  identifier        = "eks-db-instance"
+  identifier        = "at-statuspage-db"
   instance_class    = "db.t3.medium"
   engine            = var.db_engine
   engine_version    = var.db_engine_version
@@ -24,6 +33,6 @@ resource "aws_db_instance" "eks_rds" {
   final_snapshot_identifier = "eks-db-final-snapshot"
   skip_final_snapshot       = true
 
-  depends_on = [aws_security_group.eks_sg]
+  #depends_on = [aws_security_group.eks_sg]
 }
 

@@ -14,7 +14,7 @@ resource "aws_security_group" "eks_sg" {
     from_port   = 5432  # PostgreSQL port
     to_port     = 5432
     protocol    = "tcp"
-    security_groups = [aws_security_group.eks_sg.id]  # You can restrict this to your EKS VPC CIDR block for better security
+    cidr_blocks = ["0.0.0.0/0"]  # You can restrict this to your EKS VPC CIDR block for better security
   }
 
   # Allow all outbound traffic

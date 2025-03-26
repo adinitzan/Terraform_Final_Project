@@ -12,7 +12,7 @@ variable "subnet_ids" {
 variable "db_username" {
   description = "The database username."
   type        = string
-  default     = "status-page"
+  default     = "statuspage"
 }
 
 variable "db_password" {
@@ -25,7 +25,7 @@ variable "db_password" {
 variable "db_name" {
   description = "The name of the database."
   type        = string
-  default     = "status-page"
+  default     = "statuspage"
 }
 
 variable "db_engine" {
