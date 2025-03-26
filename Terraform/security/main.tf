@@ -1,6 +1,7 @@
 resource "aws_security_group" "eks_sg" {
   vpc_id = var.vpc_id
 
+  # Allow HTTPS traffic (port 443) for EKS nodes
   ingress {
     from_port   = 443
     to_port     = 443
@@ -8,6 +9,15 @@ resource "aws_security_group" "eks_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Allow PostgreSQL traffic (port 5432) for RDS
+  ingress {
+    from_port   = 5432  # PostgreSQL port
+    to_port     = 5432
+    protocol    = "tcp"
+    security_groups = [aws_security_group.eks_sg.id]  # You can restrict this to your EKS VPC CIDR block for better security
+  }
+
+  # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -15,6 +25,7 @@ resource "aws_security_group" "eks_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 resource "aws_iam_role" "eks_role" {
   name = "eks-cluster-role-AT"
