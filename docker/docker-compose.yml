@@ -1,0 +1,89 @@
+services:
+  # # PostgreSQL service
+  # db:
+  #   image: postgres:15
+  #   container_name: status-page-db
+  #   environment:
+  #     POSTGRES_USER: statuspage
+  #     POSTGRES_PASSWORD: abcdefgh123456
+  #     POSTGRES_DB: statuspage
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U statuspage -d statuspage"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - status_page_network
+  #   expose:
+  #     - "5432"
+
+  # Redis service
+  redis:
+    image: redis:6
+    container_name: status-page-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - status_page_network
+    expose:
+      - "6379"
+
+  # Django service
+  django:
+    build: ./statuspage
+    container_name: status-page-django
+    volumes:
+      - status-page-venv:/opt/status-page/venv
+      - static_files:/opt/status-page/statuspage/static
+    restart: no
+    depends_on:
+    #  db:
+    #     condition: service_healthy
+     redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_NAME=statuspage
+      - DATABASE_USER=statuspage
+      - DATABASE_PASSWORD=abcdefgh123456
+      - DATABASE_HOST=at-statuspage-db.cx248m4we6k7.us-east-1.rds.amazonaws.com
+      - DATABASE_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_TASKS_DB=0
+      - REDIS_CACHING_DB=1
+      - ALLOWED_HOSTS="*"
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin123
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+    # ports:
+    #   - "8001:8001"
+    networks:
+      - status_page_network
+
+  # Nginx service
+  nginx:
+    build: .
+    container_name: status-page-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_files:/opt/status-page/statuspage/static
+    depends_on:
+      - django
+    networks:
+      - status_page_network
+
+volumes:
+  postgres_data:
+  status-page-venv:
+  static_files:
+
+networks:
+  status_page_network:
+    driver: bridge
