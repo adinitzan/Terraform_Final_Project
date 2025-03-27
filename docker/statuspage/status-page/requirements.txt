@@ -16,9 +16,9 @@ django_browser_reload
 djangorestframework
 drf-yasg
 gunicorn
-mkdocs-material>=9.5.42
-mkdocs>=1.6.1
-mkdocstrings[python]>=0.25
+mkdocs-material
+mkdocs
+mkdocstrings[python]
 netaddr
 phonenumbers
 psycopg2-binary

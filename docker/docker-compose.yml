@@ -40,7 +40,7 @@ services:
     volumes:
       - status-page-venv:/opt/status-page/venv
       - static_files:/opt/status-page/statuspage/static
-    restart: no
+    restart: "no"
     depends_on:
     #  db:
     #     condition: service_healthy
