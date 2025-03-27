@@ -19,7 +19,7 @@ variable "db_password" {
   description = "The database password."
   type        = string
   sensitive   = true
-  default     = "abcdefgh1234567"
+  default     = "abcdefgh123456"
 }
 
 variable "db_name" {
