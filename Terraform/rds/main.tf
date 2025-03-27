@@ -7,6 +7,20 @@ resource "aws_db_subnet_group" "eks_rds_subnet_group" {
   })
 }
 
+resource "aws_db_parameter_group" "custom_pg" {
+  name   = "at-parameter"
+  family = "postgres17"
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "0"
+  }
+
+  tags = merge(var.common_tags, {
+    "Name" = "AT-EKS-RDS-postgresql"
+  })
+}
+
 resource "aws_db_instance" "eks_rds" {
   identifier        = "at-statuspage-db"
   instance_class    = "db.t3.medium"
@@ -22,7 +36,7 @@ resource "aws_db_instance" "eks_rds" {
 
   # Use the existing security group (eks_sg) for RDS
   vpc_security_group_ids = [var.eks_security_group_id]   
-
+  parameter_group_name = aws_db_parameter_group.custom_pg.name 
   multi_az           = var.multi_az
   publicly_accessible = false
 
