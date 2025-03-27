@@ -38,6 +38,11 @@ module "rds" {
   common_tags       = var.common_tags
 }
 
+module "efs" {
+  source            = "./efs"
+  common_tags       = var.common_tags
+}
+
 output "eks_cluster_name_in_main" {
   value = module.eks.eks_cluster_name
 }

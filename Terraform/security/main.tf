@@ -6,7 +6,11 @@ resource "aws_security_group" "eks_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [
+      "sg-0c68c9b31332160f9",  # קבוצת האבטחה שמורשית להתחבר
+    ]
+    self             = false
   }
 
   # Allow PostgreSQL traffic (port 5432) for RDS
@@ -14,8 +18,11 @@ resource "aws_security_group" "eks_sg" {
     from_port   = 5432  # PostgreSQL port
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # You can restrict this to your EKS VPC CIDR block for better security
+    #cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["10.0.1.0/24"]  # CIDR ספציפי של ה-VPC
+    self        = false
   }
+
 
   # Allow all outbound traffic
   egress {
