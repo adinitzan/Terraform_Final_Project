@@ -54,5 +54,7 @@ spec:
       - name: status-page-venv
         emptyDir: {}
       - name: static-files
-        persistentVolumeClaim:
-          claimName: static-files-pvc
+      imagePullSecrets:
+        - name: ecr-secret
+        #persistentVolumeClaim:
+          #claimName: static-files-pvc

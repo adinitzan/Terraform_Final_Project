@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx
-  namespace: {{ .Values.namespace }}
   labels:
     app: nginx
 spec:
@@ -35,7 +34,14 @@ spec:
         volumeMounts:
         - name: static-files
           mountPath: /opt/status-page/statuspage/static
+      imagePullSecrets:
+      - name: ecr-secret
+#      volumes:
+#        - name: static-files
+#          hostPath:
+#            path: /home/user/infra/appImage/finalProject/status-page/statuspage/static
       volumes:
       - name: static-files
-        persistentVolumeClaim:
-          claimName: static-files-pvc
+#        persistentVolumeClaim:
+#          claimName: static-files-pvc
+

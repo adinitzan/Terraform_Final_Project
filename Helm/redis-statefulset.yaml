@@ -45,10 +45,17 @@ spec:
 
   volumeClaimTemplates:
   - metadata:
-      name: redis-data
+      name: redis-data #redis-data
     spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: ebs-at
-      resources:
-        requests:
-          storage: {{ .Values.volumes.redis_data.size }}
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: manual
+    #spec:
+      #accessModes: ["ReadWriteOnce"]
+      #storageClassName: ebs-at
+      #resources:
+        #requests:
+          #storage: {{ .Values.volumes.redis_data.size }}
