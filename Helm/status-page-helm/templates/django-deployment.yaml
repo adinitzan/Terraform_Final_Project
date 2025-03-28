@@ -44,7 +44,7 @@ spec:
             secretKeyRef:
               name: django-secret
               key: DJANGO_SUPERUSER_PASSWORD
-        
+
         volumeMounts:
         - name: status-page-venv
           mountPath: /opt/status-page/venv
@@ -54,7 +54,10 @@ spec:
       - name: status-page-venv
         emptyDir: {}
       - name: static-files
+        hostPath:
+          path: /opt/status-page/statuspage/static
+          type: Directory
+#        persistentVolumeClaim:
+#          claimName: static-files-pvc
       imagePullSecrets:
         - name: ecr-secret
-        #persistentVolumeClaim:
-          #claimName: static-files-pvc
