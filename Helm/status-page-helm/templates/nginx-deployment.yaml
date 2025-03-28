@@ -34,14 +34,13 @@ spec:
         volumeMounts:
         - name: static-files
           mountPath: /opt/status-page/statuspage/static
-      imagePullSecrets:
-      - name: ecr-secret
-#      volumes:
-#        - name: static-files
-#          hostPath:
-#            path: /home/user/infra/appImage/finalProject/status-page/statuspage/static
       volumes:
-      - name: static-files
+        - name: static-files
+          hostPath:
+            path: /opt/status-page/statuspage/static
+#      volumes:
+#      - name: static-files
 #        persistentVolumeClaim:
 #          claimName: static-files-pvc
-
+      imagePullSecrets:
+      - name: ecr-secret
