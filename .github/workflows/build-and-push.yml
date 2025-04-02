@@ -32,7 +32,7 @@ jobs:
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
         ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
-        APP_IMAGE_TAG: 'app'
+        APP_IMAGE_TAG: ${{ secrets.APP_IMAGE_TAG }}
       run: |
         echo "Building Docker image for app"
         DOCKER_APP_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ secrets.APP_IMAGE_TAG }}"
@@ -46,7 +46,7 @@ jobs:
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
         ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
-        NGINX_IMAGE_TAG: 'nginx-app'
+        NGINX_IMAGE_TAG: ${{ secrets.NGINX_IMAGE_TAG }}
       run: |
         echo "Building Docker image for nginx"
         DOCKER_NGINX_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ secrets.NGINX_IMAGE_TAG }}"
