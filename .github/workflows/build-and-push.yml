@@ -21,8 +21,10 @@ jobs:
     # 3. Log in to Amazon ECR
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
-      with:
-        region: ${{ secrets.AWS_REGION }}  # הוספתי את ה-region פה כדי שה-login יתבצע כראוי
+      env:  # הגדר את המשתנים כאן כמשתני סביבה
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     # 4. Build Docker image for the app
     - name: Build Docker image for the app
