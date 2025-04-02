@@ -9,16 +9,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
-      APP_IMAGE_TAG: 'app'
-      NGINX_IMAGE_TAG: 'nginx-app'
-      DOCKER_APP_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ env.APP_IMAGE_TAG }}"
-      DOCKER_NGINX_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ env.NGINX_IMAGE_TAG }}"
-
-    steps: 
+    steps:
     # 1. Checkout code
     - name: Checkout code
       uses: actions/checkout@v2
@@ -33,13 +24,25 @@ jobs:
 
     # 4. Build Docker image for the app
     - name: Build Docker image for the app
+      env:
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
+        APP_IMAGE_TAG: 'app'
       run: |
+        DOCKER_APP_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ secrets.APP_IMAGE_TAG }}"
         docker build -t $DOCKER_APP_IMAGE -f docker/statuspage/Dockerfile .
         docker tag $DOCKER_APP_IMAGE $DOCKER_APP_IMAGE
 
     # 5. Build Docker image for nginx
     - name: Build Docker image for nginx
+      env:
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
+        NGINX_IMAGE_TAG: 'nginx-app'
       run: |
+        DOCKER_NGINX_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ secrets.NGINX_IMAGE_TAG }}"
         docker build -t $DOCKER_NGINX_IMAGE -f docker/Dockerfile .
         docker tag $DOCKER_NGINX_IMAGE $DOCKER_NGINX_IMAGE
 
