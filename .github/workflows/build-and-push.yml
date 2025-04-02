@@ -3,32 +3,79 @@ name: Build and Push Docker Image to ECR
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
+      APP_IMAGE_TAG: 'app'
+      NGINX_IMAGE_TAG: 'nginx-app'
+      DOCKER_APP_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_NAME }}:${{ env.APP_IMAGE_TAG }}"
+      DOCKER_NGINX_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_NAME }}:${{ env.NGINX_IMAGE_TAG }}"
+
     steps:
-    # 1. Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # 2. Set up Docker Buildx
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # 3. Login to AWS ECR
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
 
-    # 4. Build and tag the Docker image
-    - name: Build Docker image
+    - name: Build Docker image for the app
       run: |
-        docker build -t my-app:$GITHUB_SHA .
-        docker tag my-app:$GITHUB_SHA $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-app:$GITHUB_SHA
+        docker build -t $DOCKER_APP_IMAGE -f appImage/finalProject/status-page/Dockerfile .
+        docker tag $DOCKER_APP_IMAGE $DOCKER_APP_IMAGE
 
-    # 5. Push the Docker image to ECR
-    - name: Push Docker image to Amazon ECR
+    - name: Build Docker image for nginx
       run: |
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/my-app:$GITHUB_SHA
+        docker build -t $DOCKER_NGINX_IMAGE -f appImage/finalProject/status-page/Dockerfile.nginx .
+        docker tag $DOCKER_NGINX_IMAGE $DOCKER_NGINX_IMAGE
+
+    - name: Push Docker image for the app to Amazon ECR
+      run: |
+        docker push $DOCKER_APP_IMAGE
+
+    - name: Push Docker image for nginx to Amazon ECR
+      run: |
+        docker push $DOCKER_NGINX_IMAGE
+
+      ECR_REPO_NAME:     # שם ה-repository המשותף
+      APP_IMAGE_TAG: 'app'
+      NGINX_IMAGE_TAG: 'nginx-app'
+      DOCKER_APP_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_NAME }}:${{ env.APP_IMAGE_TAG }}"
+      DOCKER_NGINX_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO_NAME }}:${{ env.NGINX_IMAGE_TAG }}"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build Docker image for the app
+      run: |
+        docker build -t $DOCKER_APP_IMAGE -f docker/statuspage/Dockerfile .
+        docker tag $DOCKER_APP_IMAGE $DOCKER_APP_IMAGE
+
+    - name: Build Docker image for nginx
+      run: |
+        docker build -t $DOCKER_NGINX_IMAGE -f docker/Dockerfile .
+        docker tag $DOCKER_NGINX_IMAGE $DOCKER_NGINX_IMAGE
+
+    - name: Push Docker image for the app to Amazon ECR
+      run: |
+        docker push $DOCKER_APP_IMAGE
+
+    - name: Push Docker image for nginx to Amazon ECR
+      run: |
+        docker push $DOCKER_NGINX_IMAGE
